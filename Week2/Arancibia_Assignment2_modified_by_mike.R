@@ -3,10 +3,10 @@
 
 #Learning - perceptron
 
-public.data.set <- read.csv("/users/bcarancibia/CUNY_IS_621/Week2/data/test-public.csv", header = TRUE)
+#training.data.set <- read.csv("/users/bcarancibia/CUNY_IS_621/Week2/data/test-public.csv", header = TRUE)
 training.data.set <- read.csv("/users/bcarancibia/CUNY_IS_621/Week2/data/coin-training-data.csv",header=T,stringsAsFactors=F)
 
-private.data.set <- read.csv("/users/bcarancibia/CUNY_IS_621/Week2/data/test-private.csv", header = TRUE)
+#test.data.set <- read.csv("/users/bcarancibia/CUNY_IS_621/Week2/data/test-private.csv", header = TRUE)
 
 
 #### Assign initial values ####
@@ -19,9 +19,6 @@ colnames(training.data.set)[1] <- "intercept"
 training.data.set$class <- ifelse(training.data.set$answer=="cent",1,-1)
 
 inputs <- as.matrix(training.data.set[,1:4])
-inputs2 <- as.matrix(public.data.set[,1:4])
-inputs3 <- as.matrix(private.data.set[,1:4])
-inputs4 <- as.matrix(public.data.set[,2:4])
 
 #### Functions ####
 
@@ -94,10 +91,8 @@ perceptron <- function(x, y, w, a, verbose=F) {
 # Example
 x <- matrix(c(1, 2, 1, 2, 2, 1, 4, 1, 1, 5, 1, 1), nrow=4, byrow=T)
 y <- c(-1, 1, -1,1)
-w <- c(0,0,0,0)
 a <- 0.5
 perceptron(inputs, y, w, a, verbose=T)
-
 
 
 #2 Design Multivariant Solution
@@ -107,68 +102,42 @@ perceptron(inputs, y, w, a, verbose=T)
 
 
 # b)
-#cent
-mu <- c(2.5, 19.05, 1.52)
-Sigma <- matrix(c(0.0025, 0, 0, 0, 0.1452, 0, 0, 0, 0.0009), ncol=3) # covariance matrix of X
 
-plot1 <- rmvnorm(n=500, mean=c(2.5, 19.05, 1.52), sigma=Sigma)
-colMeans(plot1)
-var(plot1)
+# Some variable definitions cent
+mu1 <- 2.5 # expected value of mass
+mu2 <- 19.05	# expected value of diameter
+mu3 <- 1.52 #thickness
+sig1 <- 0.0025	# variance of mass
+sig2 <- 0.1452 # variance of diameter
+sig3 <- 0.0009
+rho <- 0.5	# corr(x, y)
 
-plot(plot1)
+# Some additional variables for x-axis and y-axis 
+xm <- -3
+xp <- 3
+ym <- -3
+yp <- 3
 
-#dime
-mu2 <- c(2.268, 17.91, 1.35)
-Sigma2 <- matrix(c(0.0021, 0, 0, 0, 0.1283 , 0, 0, 0, 0.0007), ncol=3) # covariance matrix of X
+x <- seq(xm, xp, length= as.integer((xp + abs(xm)) * 10))  # vector series x
+y <- seq(ym, yp, length= as.integer((yp + abs(ym)) * 10))  # vector series y
 
-plot2 <- rmvnorm(n=500, mean=c(2.268, 17.91, 1.35), sigma=Sigma2)
-colMeans(plot2)
-var(plot2)
+# Core function
+bivariate <- function(x,y){
+  term1 <- 1 / (2 * pi * sig1 * sig2 * sqrt(1 - rho^2))
+  term2 <- (x - mu1)^2 / sig1^2
+  term3 <- -(2 * rho * (x - mu1)*(y - mu2))/(sig1 * sig2)
+  term4 <- (y - mu2)^2 / sig2^2
+  z <- term2 + term3 + term4
+  term5 <- term1 * exp((-z / (2 *(1 - rho^2))))
+  return (term5)
+}
 
-plot(plot2)
+# Computes the density values
+z <- outer(x,y,bivariate)
 
-
-#c)
-df <- public.data.set[-1]
-df$answer <- factor(df$answer, levels=c(0,1), labels=c("cent", "dime"))
-
-train <- sample(nrow(df), 0.7*nrow(df))
-df.train <- df[train,]
-df.validate <- df[-train,]
-table(df.train$answer)
-table(df.validate$answer)
-
-fit.logit <- glm(answer~. , data=df.train, family=binomial())
-summary(fit.logit)
-
-prob <- predict(fit.logit, df.validate, type="response")
-logit.pred <- factor(prob > .5, levels=c(FALSE, TRUE), labels=c("cent", "dime"))
-logit.perf <- table(df.validate$answer, logit.pred,dnn=c("Actual", "Predicted"))
-
-logit.perf
-
-#My regression was not so great at predicting. 
-
-
-
-
-#d)
-#private
-df2 <- private.data.set[-1]
-df2$answer <- factor(df2$answer, levels=c(0,1), labels=c("cent", "dime"))
-
-train2 <- sample(nrow(df2), 0.7*nrow(df2))
-df2.train <- df[train2,]
-df2.validate <- df[-train2,]
-table(df2.train$answer)
-table(df2.validate$answer)
-
-fit.logit2 <- glm(answer~. , data=df2.train, family=binomial())
-summary(fit.logit2)
-
-prob2 <- predict(fit.logit2, df2.validate, type="response")
-logit.pred2 <- factor(prob > .5, levels=c(FALSE, TRUE), labels=c("cent", "dime"))
-logit.perf2 <- table(df2.validate$answer, logit.pred,dnn=c("Actual", "Predicted"))
-
-logit.perf2
-
+# Plot
+persp(x, y, z, main = "Bivariate Normal Distribution",
+      sub = bquote(bold(mu[1])==.(mu1)~", "~sigma[1]==.(sig1)~", "~mu[2]==.(mu2)~
+                     ", "~sigma[2]==.(sig2)~", "~rho==.(rho)),
+      col="orchid2", theta = 55, phi = 30, r = 40, d = 0.1, expand = 0.5,
+      ltheta = 90, lphi = 180, shade = 0.4, ticktype = "detailed", nticks=5)
