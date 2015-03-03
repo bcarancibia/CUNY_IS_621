@@ -27,7 +27,7 @@ inputs4 <- as.matrix(public.data.set[,2:4])
 
 # Perceptron Update Function
 
-
+eps <- sqrt(sum((beta0-beta)^2))/sqrt(sum(beta0^2))
 
 # Perceptron Assignment Function
 
@@ -93,9 +93,9 @@ perceptron <- function(x, y, w, a, verbose=F) {
 
 # Example
 x <- matrix(c(1, 2, 1, 2, 2, 1, 4, 1, 1, 5, 1, 1), nrow=4, byrow=T)
-y <- c(-1, 1, -1,1)
+y <- c(-1,1,1,1)
 w <- c(0,0,0,0)
-a <- 0.5
+a <- 1
 perceptron(inputs, y, w, a, verbose=T)
 
 
