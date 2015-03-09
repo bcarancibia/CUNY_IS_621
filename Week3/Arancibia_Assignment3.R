@@ -154,7 +154,46 @@ summary(test)
 
 #6
 
+df8 <- read.csv('/users/bcarancibia/CUNY_IS_621/Week3/data/pima-training-data.csv', header=TRUE)
+df9 <- read.csv('/users/bcarancibia/CUNY_IS_621/Week3/data/pima-learning-data-public.csv', header=TRUE)
+df10 <- read.csv('/users/bcarancibia/CUNY_IS_621/Week3/data/pima-learning-data-private.csv', header=TRUE)
 
+lapply(df8, as.numeric)
+
+lapply(df9, as.numeric)
+
+knn <- function(df, k = 5)
+{
+  distance <- as.matrix(dist(df[,1:2]))
+  predictions <- rep(0, nrow(df))
+  
+  # For every point in the dataset
+  for (i in 1:nrow(df))
+  {
+    indices <- k.nearest.neighbors(i, distance, k = k)  # Get the nearest neighbors
+    predictions[i] <- ifelse(mean(df[indices, 'class']) > 0.5, 1, 0)   # If > 0.5, then this is in class "1"
+  }
+  return(predictions)
+}
+
+predictions <- knn(df8, 5)
+df8$predictions <- predictions
+sum(df8$class != df8$predictions)
+
+knn_predict2 <- knn(df8, k=8)
+sum(knn_predict2 != df8$class)
+
+#My Analysis shows that my values that do not match are equal at 106
+#Which is alright for 400 values, but this level of values not matching means the k values need to change.
+
+predictions <- knn(df8, 8)
+df8$predictions <- predictions
+sum(df8$class != df8$predictions)
+
+knn_predict2 <- knn(df8, k=8)
+sum(knn_predict2 != df8$class)
+
+#k=8 reduces the values of mismatch predictions to 96
 
 
 
