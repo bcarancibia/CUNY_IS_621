@@ -55,8 +55,27 @@ information_gain(data.public$tendency,data.public$gender)
 information_gain(data.public$tendency,data.public$marital)
 decide(data.public,5)
 
+#### had trouble predicting
+data.private$tendency
+data.private$tendency[data.private$tendency == 0] <- " "
+
+entropy(data.private$tendency)
+information_gain(data.private$tendency, data.private$agegroup)
+information_gain(data.private$tendency, data.private$employment)
+information_gain(data.private$tendency, data.private$gender)
+information_gain(data.private$tendency, data.private$marital)
+decide(data.private,5)
+
+#####
 
 
+library(rpart)
 
+tree <- rpart(tendency ~ data.public$agegroup + data.public$employment + data.public$gender + data.public$marital, data.public, method ="class")
+plot(tree)
+text(tree, pretty=0)
 
-
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+fancyRpartPlot(tree)
