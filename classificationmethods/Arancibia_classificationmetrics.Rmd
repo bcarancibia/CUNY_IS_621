@@ -1,0 +1,23 @@
+---
+title: "Classification Model Metrics"
+author: "Ben Arancibia"
+date: "May 2, 2015"
+output: pdf_document
+---
+
+1) Read in the csv
+
+```{r}
+data <- read.csv("/users/bcarancibia/CUNY_IS_621/classificationmethods/classificationoutput.csv")
+```
+
+
+2) table() to get the raw confusion matrix
+
+```{r}
+
+table(data$class,data$Scored.Labels)
+
+(119+27) / 181
+
+```
