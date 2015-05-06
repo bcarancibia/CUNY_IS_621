@@ -5,10 +5,6 @@ date: "May 2, 2015"
 output: pdf_document
 ---
 
-#Introduction
-I begin with the lab portion and completed the lab in a separate file. I kept the important basic parts of the lab in the assignment and do the assignment exercises below under the Assignment heading.
-
-
 1) Read in the csv
 
 ```{r}
@@ -91,56 +87,20 @@ F1 <- 2*((precision*recall)/(precision+recall))
 F1
 ```
 
+9)
+The bounds of an F1 score will always be between 0 and 1. 
 
+0 < a < 1
+0 < b < 1
 
+then 
 
-#Assignment
+ab < a
 
-1. Write a function that generates a lift chart using a dataframe with actual clssification and scored probability. 
-
-Lift = expected response in a specific lot / expected response in a random lot
-
-* Predict a set of samples that were not used in the model building process
-but have known outcomes. (Scored.Labels)
-* Determine the baseline event rate, i.e., the percent of true events in the
-entire data set. (accuracy)
-* Order the data by the classification probability of the event of interest.
-* For each unique class probability value, calculate the percent of true events
-in all samples below the probability value.
-* Divide the percent of true events for each probability threshold by the
-baseline event rate.
+because it is a combination of precesion and recall which are already ratios. As a result, the ratios of precision and recall are between 0 and 1 and are tied together. Thus, F1 cannot go above. see below to see two highest possible scores.
 
 ```{r}
-library(ROCR)
-library(plyr)
-data$classfactor <- ifelse(data$class=="0","Yes","No")
-data$classfactorscored <- ifelse(data$Scored.Labels=="0","Yes","No")
-
-pred.rocr <- prediction(data$Scored.Probabilities, data$classfactor)
-performance(pred.rocr, 'auc')@y.values[[1]]
-
-dec.table <- ldply((1:10)/10, function(x) data.frame(
-    decile=x,
-    prop.yes=sum(data$class[1:ceiling(nrow(data)*x)])/sum(data$class),
-    lift=mean(data$class[1:ceiling(nrow(data)*x)])/mean(data$class)))
-print(dec.table, digits=2)
-
-plot(performance(pred.rocr, 'lift', 'rpp'))
-
+.99999999999999999 * 1
 ```
-
-
-2.Investigate the lift function in the caret package. Use it to create a lift chart on the test data. 
-```{r}
-library(caret)
-data$classfactor <- ifelse(data$class=="0","a","b")
-
-liftcurve <- lift(classfactor ~ Scored.Probabilities, data = data)
-
-xyplot(liftcurve, auto.key = list(columns =2, lines=TRUE, points=FALSE))
-
-```
-
-The lift function using the caret function is a lot more smooth and does not seem to show the same data...
 
 
