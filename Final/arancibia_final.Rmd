@@ -1,0 +1,61 @@
+---
+title: 'IS 621: Business Analytics and Data Mining Final'
+author: "Ben Arancibia"
+date: "May 19, 2015"
+output: pdf_document
+---
+
+#Introduction
+```{r, echo=FALSE}
+setwd("/users/bcarancibia/CUNY_IS_621/Final/")
+```
+
+#Part 1 Classification and Regression
+
+
+#Part 2 Clustering
+
+1. Read in the data
+```{r}
+protein <- read.csv("country-protein.csv", header=TRUE, sep="\t")
+```
+
+2. Hierarchical clustering
+```{r}
+
+proteinmatrix <- scale(protein[,2:10])
+attr(proteinmatrix, "scaled:center")
+attr(proteinmatrix, "scaled:scale")
+
+```
+
+
+```{r}
+distances <- dist(proteinmatrix, method="euclidean")
+protein.hierarchical <- hclust(distances, method="ward.D")
+plot(protein.hierarchical, labels=protein$Country)
+```
+
+
+3. K-means clustering
+
+```{r}
+proteinmatrix <- scale(protein[,2:10])
+protein.kmeans <- kmeans(proteinmatrix, centers=5,iter.max=100, nstart=100)
+```
+
+```{r}
+summary(protein.kmeans)
+protein.kmeans$cluster
+protein.kmeans$totss
+protein.kmeans$withinss
+protein.kmeans$size
+```
+
+```{r}
+protein$cluster <- protein.kmeans$cluster
+proteinsorted <- protein[order(protein$cluster),]
+View(proteinsorted) # inspect the dataframe
+```
+
+#Challenge Problem
