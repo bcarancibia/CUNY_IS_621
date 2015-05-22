@@ -11,7 +11,51 @@ setwd("/users/bcarancibia/CUNY_IS_621/Final/")
 ```
 
 #Part 1 Classification and Regression
+Using the crime training data set for crime prediction in various neighborhoods, I will build a classification model that takes given inputs and predicts whether the neighborhood will be at risk for high crime levels. Below are the crime definitions:
 
+* zn:  proportion of residential land zoned for large lots (over 25000 square feet)
+* indus:	proportion of non-retail business acres per suburb
+* chas:	a dummy variable for whether the suburb borders the Charles River (1) or not (0)
+* nox:	nitrogen oxides concentration (parts per 10 million)
+* rm:	average number of rooms per dwelling
+* age:	proportion of owner-occupied units built prior to 1940
+* dis:	weighted mean of distances to five Boston employment centres
+* rad:	index of accessibility to radial highways
+* tax:	full-value property-tax rate per \$10,000
+* ptratio:	pupil-teacher ratio by town
+* black:	1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town
+* lstat:	lower status of the population (percent)
+* medv:	median value of owner-occupied homes in \$1000s
+* target:	whether the crime rate is above the median crime rate (1) or not (0) (target for classification)
+
+I used a k nearest neighbor model to classify whether and area is at risk for high crime levels. The model and code is below and according to the accuracy calculation which was used from our previous class work, the accuracy is 1.
+
+Read in the datasets
+```{r}
+
+library(class)
+crime.train <- read.csv("crime-training-data.csv", header=TRUE)
+crime.test <- read.csv("crime-evaluation-data.csv", header=TRUE)
+
+```
+
+Use k nearest neighbors to do the prediction
+```{r}
+crime.train[,1:13] <- scale(crime.train[,1:13])
+crime.test[,1:13] <- scale(crime.test[,1:13])
+
+pred.knn <- knn(crime.train[,1:13], crime.test[,1:13], cl=as.factor(crime.train[,14]), k=5)
+
+crime.test$target <- pred.knn
+
+head((crime.test))
+
+accuracy <- sum(pred.knn == crime.test[,14])/length(pred.knn)
+accuracy
+```
+
+
+Personally, I think that the possibility of the accuracy being 1 is highly inprobable, but it seems for this classification model it worked. 
 
 #Part 2 Clustering
 
@@ -55,7 +99,57 @@ protein.kmeans$size
 ```{r}
 protein$cluster <- protein.kmeans$cluster
 proteinsorted <- protein[order(protein$cluster),]
-View(proteinsorted) # inspect the dataframe
+
+knitr::kable(proteinsorted) # inspect the dataframe
 ```
 
 #Challenge Problem
+
+
+
+```{r}
+country <- read.csv("countries-challenge-data.csv", header=TRUE)
+```
+
+First step is to do the hierarchical clustering.
+Create a scaled version.
+```{r}
+countrymatrix <- scale(country[,2:4])
+attr(countrymatrix, "scaled:center")
+attr(countrymatrix, "scaled:scale")
+```
+
+Create a distance matrix and then run the clustering. Plot the dendrogram.
+
+```{r}
+distances <- dist(countrymatrix, method="euclidean")
+country.hierarchical <- hclust(distances, method="ward.D")
+plot(country.hierarchical, labels=country$country)
+
+```
+
+The next step is do kmeans clustering.
+
+Scale the data set and perform kmeans() function to do the clustering
+```{r}
+countrymatrix <- scale(country[,2:4])
+country.kmeans <- kmeans(countrymatrix, centers=5,iter.max=100, nstart=100)
+```
+
+Evaluate the clusters
+```{r}
+summary(country.kmeans)
+country.kmeans$cluster
+country.kmeans$totss
+country.kmeans$withinss
+country.kmeans$size
+```
+
+Assign cluster labels to the data
+```{r}
+country$cluster <- country.kmeans$cluster
+countrysorted <- country[order(country$cluster),]
+
+knitr::kable(head(countrysorted)) # inspect the dataframe
+knitr::kable(tail(countrysorted))
+```
